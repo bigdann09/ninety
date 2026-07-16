@@ -1,0 +1,29 @@
+Use sonner for notifications and errors on the app
+How do we reward users for betting on ninety? is there a way to reward them for winning bets?
+This is the signature for a stake I made `5nFN8CZKkD6MjjGdME5V9Du9H5LAFKgbBh9mFKjoGLHnYznNAZDCEGvuEACxdXQJNbC5EBrtjgrAmVBibtukiZAZ` but U see this or get redirected to this url via the receipt `https://explorer.solana.com/tx/1b27b45da62e1e4b2b3ec96a34403895c259dca7704e9f95a8a7c8555b6aa968?cluster=devnet` and it's the same for every receipt on that page
+The Live Pool for each market should be dynamically updated on the markets page using the pools from the blockchain.
+The stakes page doesn't show my position even after placing a bet.
+What are the benefits of integrating AI on this project, I plan on using Groq AI which is free
+What are the chances of me winning this hackathon using this project?
+Show the user's balance before they stake, the button should be disabled if they don't have enough balance
+The markets page should be sorted by the match time, so the match that is happening now should be at the top.
+On the markets page, under each market card, the price should be shown in the currency of the user, not in lamports.
+What do you think that would be added here that doesn't currently exist on prediction markets already?
+A user shouldn't be able to stake on a market that has already closed
+Are the receipts dynamic, static or actually just the receipt for stake? as in, do they actually update on the blockchain or is it just a front-end thing, cause they were 9 receipts I staked and still 9 after I staked and even refreshed the browser
+
+
+
+Implement this, I'll provide my Groq AI API Key: `Dynamic Odds Tuning: Run micro-simulations using real-time game stats to feed live odds generation.
+Personalized Feeds: Present users with recommended fixtures/markets based on their historical betting profiles.
+Live Match Commentary / Copilot: Generate real-time commentary updates and suggestions (e.g. "Arsenal is mounting attacks; consider staking Yes on Goal before 80:00").`
+
+This too: `Loyalty/Airdrop Points: Integrate a point system where every placed stake earns points. Winning stakes can earn a multiplier (e.g., 2x points). These points can translate to future airdrops.
+On-Chain Receipt NFTs: Settle bets with dynamic on-chain NFT receipts ("stubs"). Winning stubs can be burned/redeemed for exclusive platform privileges, discounts, or special badges.`
+
+and this: `Ultra-short Micro-Markets: Prediction markets on the next 1-5 minutes of play (e.g., "Will there be a throw-in in the next 60 seconds?").
+On-Chain Cashout: Allow users to sell their position back to the pool mid-game based on the fluctuating probability.
+P2P Custom Challenges: Let users set up custom markets against friends (e.g. "I bet $10 Real Madrid scores next")`
+
+
+[REMOVED: a live Groq API key was pasted here in plaintext — rotate it in the Groq console, then set GROQ_API_KEY via environment variable / secrets manager, never commit it to a file again.]

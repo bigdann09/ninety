@@ -1,0 +1,131 @@
+@import "tailwindcss" source(none);
+@source "../src";
+
+@custom-variant dark (&:is(.dark *));
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+  --color-cyan: var(--cyan);
+  --color-cyan-dim: var(--cyan-dim);
+  --color-clag: var(--clag);
+
+  --color-primary: var(--foreground);
+  --color-primary-foreground: var(--background);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--foreground);
+  --color-border: var(--line);
+  --color-ring: var(--amber);
+
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --radius: 4px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+}
+
+:root {
+  --background: #0B1410;       /* pitch ink */
+  --surface: #161E18;          /* touchline */
+  --surface-2: #1E2722;        /* one step up for nested */
+  --line: #26302A;             /* hairline */
+  --foreground: #ECE8DD;       /* chalk */
+  --muted: #1E2722;
+  --muted-foreground: #8A9189; /* dim chalk */
+  --clag: #6B6258;             /* settled neutral */
+  --amber: #FF8A1F;            /* scoreboard LED */
+  --amber-dim: #B6611A;
+  --cyan: #5BE0C9;             /* ledger — on-chain verified only */
+  --cyan-dim: #2E8A7B;
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html,
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--amber);
+    color: var(--background);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@utility num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@utility stub-perforation {
+  background-image: radial-gradient(circle, var(--background) 1.5px, transparent 1.5px);
+  background-size: 6px 8px;
+  background-position: center;
+  background-repeat: repeat-y;
+}
+
+@utility ticker-scan {
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 2px,
+    rgba(11, 20, 16, 0.35) 2px,
+    rgba(11, 20, 16, 0.35) 3px
+  );
+}
+
+@keyframes pip-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.pip-live {
+  animation: pip-pulse 1.4s ease-in-out infinite;
+}
+
+/* Closing-soon pulsing ring — used on market cards approaching deadline */
+@keyframes closing-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 138, 31, 0.4); }
+  60% { box-shadow: 0 0 0 4px rgba(255, 138, 31, 0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 138, 31, 0); }
+}
+
+.closing-ring {
+  animation: closing-ring 2s ease-out infinite;
+}
+
+/* Reduce motion — set via settings page toggle */
+[data-reduce-motion="true"] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pip-live { animation: none; }
+  .closing-ring { animation: none; }
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
