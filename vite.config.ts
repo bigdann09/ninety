@@ -15,8 +15,7 @@ const config = defineConfig({
       "@coral-xyz/anchor": require.resolve("@coral-xyz/anchor/dist/cjs/index.js"),
     },
   },
-  plugins: [devtools(), tailwindcss(), nitro(), tanstackStart(), viteReact()],
-  server: { allowedHosts: [".ngrok-free.app"] },
+  plugins: [devtools(), tailwindcss(), nitro(), tanstackStart(), viteReact()]
 });
 
 export default config
