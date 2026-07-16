@@ -25,8 +25,6 @@ export interface Fixture {
 export interface TournamentTeam {
   name: string;
   prob: number;
-  // Present once the backend's tournament.service has bootstrapped the real
-  // stakeable winner markets; absent = display-only fallback.
   matchId?: string;
   marketId?: string;
   marketStatus?: string;
@@ -268,9 +266,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             minute = Math.max(1, Math.min(90, Math.floor(diffMs / 60000)));
           }
 
-          // Merge on-chain pools if available. Vote counts come from the DB stake rows
-          // and must be captured before the on-chain merge replaces `stakes` with two
-          // synthetic per-side totals (which would collapse every count to 1).
           const marketsWithOnChain = (m.markets || []).map((mk: any) => {
             const dbStakeRows = mk.stakes || [];
             const yesVotes = dbStakeRows.filter((st: any) => st.side === "yes").length;
@@ -362,9 +357,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const diffMs = Date.now() - kickoff.getTime();
           const minute = Math.max(1, Math.min(90, Math.floor(diffMs / 60000)));
 
-          // claimPosition/cashoutPosition expect the on-chain market PDA (base58), not the
-          // Supabase market UUID — deriving it here once, the same way the backend/on-chain
-          // program does, means downstream components don't need to know about that distinction.
           const marketPdaStr = s.market?.match_id
             ? getMarketPda(s.market.match_id, s.market_id).toBase58()
             : s.market_id;
@@ -502,8 +494,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   };
 
-  // Early exit before settlement — signs and sends the real `cashout` instruction, then
-  // asks the backend to verify the transaction and record the (real, on-chain-computed) refund.
   const cashoutPosition = async (stakeId: string, marketId: string) => {
     if (!program || !publicKey) {
       throw new Error("Wallet not connected");
@@ -598,8 +588,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Signs and sends the real place_stake instruction against the challenge's escrow market,
-  // then tells the backend so it can verify it and mark this side as funded.
   const p2pPlaceStake = async (challengeId: string) => {
     if (!program || !publicKey) {
       throw new Error("Wallet not connected");
@@ -647,8 +635,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await refreshData();
   };
 
-  // Admin/manual resolution — used when the AI referee can't confidently determine an
-  // outcome (challenge status becomes "disputed"). Settles the escrow market for real on-chain.
   const resolveP2pChallenge = async (challengeId: string, outcome: boolean) => {
     try {
       const res = await fetch(`${API_URL}/api/p2p/challenges/${challengeId}/resolve`, {
@@ -721,7 +707,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await refreshData();
   };
 
-  // Add position (create stake) in backend
   const addPosition = async (newPos: Omit<Position, "id"> & { onChainPubkey?: string; txSig?: string }) => {
     try {
       const res = await fetch(`${API_URL}/api/stakes`, {
@@ -783,9 +768,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         })
         .rpc();
 
-      console.log("Claim tx successful:", tx);
-
-      // Notify the backend — it verifies the transaction on-chain before marking claimed.
       const res = await fetch(`${API_URL}/api/stakes/${stakeId}/claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -803,7 +785,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Initial load and polling
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
@@ -827,17 +808,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       document.documentElement.classList.remove("high-contrast");
     }
   }, [highContrast]);
-
-  // Logging for user/debugging
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("=== Ninety Browser Logs ===");
-      console.log("Matches:", matches);
-      console.log("Predictions (Active Positions):", positions);
-      console.log("Receipts (Settled Stakes):", settled);
-      console.log("===========================");
-    }
-  }, [matches, positions, settled, isLoading]);
 
   return (
     <AppContext.Provider

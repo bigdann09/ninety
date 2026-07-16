@@ -56,6 +56,7 @@ function MatchPage() {
   const { matches, fetchCopilot, settled, isConnected } = useApp();
   const [now, setNow] = useState(0);
   const [copilot, setCopilot] = useState<any>(null);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
 
   const fixture = matches.find((m) => m.id === matchId);
 
@@ -103,8 +104,6 @@ function MatchPage() {
       const noPool = Math.round(noPoolSol * 1000);
       const totalPool = yesPool + noPool;
 
-      // Vote counts are attached in app-context before the on-chain pool merge
-      // replaces the raw stake rows; fall back to counting rows for safety.
       const yesVotes = m.yesVotes ?? dbStakes.filter((st: any) => st.side === "yes").length;
       const noVotes = m.noVotes ?? dbStakes.filter((st: any) => st.side === "no").length;
 
@@ -135,9 +134,6 @@ function MatchPage() {
     [MARKETS],
   );
 
-  // settled[].marketId is the on-chain market PDA (see getMarketPda in app-context.tsx),
-  // not the raw Supabase market UUID that MARKETS.id uses — so receipts for this fixture
-  // are matched by team names rather than market id.
   const userMatchReceipts = useMemo(() => {
     if (!isConnected || !fixture) return [];
     return settled.filter((s) => s.home === fixture.home && s.away === fixture.away);
@@ -212,10 +208,9 @@ function MatchPage() {
             <MatchChat matchId={fixture.id} />
           </div>
           {fixture.state === "ended" ? (
-            <div className="rounded-lg border border-line bg-surface/30 p-6 text-center">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Match Concluded</span>
-              <h3 className="font-display text-base font-bold text-foreground mt-1">Predictions are closed</h3>
-              <p className="text-xs text-muted-foreground mt-2 max-w-[40ch] mx-auto">This match has finished. All predicting pools are locked and settled.</p>
+            <div className="rounded-lg border border-line bg-surface/30 p-4 text-center">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono">Match concluded</span>
+              <p className="text-xs text-muted-foreground mt-1 max-w-[40ch] mx-auto">All predicting pools are locked and settled — see how the crowd called it below.</p>
             </div>
           ) : (
             <div>
@@ -227,20 +222,32 @@ function MatchPage() {
               </ul>
             </div>
           )}
-          {MARKETS.some(m => m.settled) && (
+          {MARKETS.some(m => m.settled) ? (
             <div>
               <SectionHeading
                 eyebrow="How the crowd called it"
-                title="Market results"
+                title="Market history"
                 meta={`${MARKETS.filter(m => m.settled).length} settled`}
               />
               <ul className="mt-4 flex flex-col gap-3">
-                {MARKETS.filter(m => m.settled).map(m => (
-                  <li key={m.id}><MarketResultCard market={m} /></li>
+                {MARKETS.filter(m => m.settled).slice(0, historyExpanded ? undefined : 6).map(m => (
+                  <li key={m.id}><MarketHistoryCard market={m} /></li>
                 ))}
               </ul>
+              {MARKETS.filter(m => m.settled).length > 6 && (
+                <button
+                  onClick={() => setHistoryExpanded((v) => !v)}
+                  className="mt-4 w-full rounded-md border border-line py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition hover:border-foreground hover:text-foreground"
+                >
+                  {historyExpanded ? "Show less" : `Show all ${MARKETS.filter(m => m.settled).length} settled markets`}
+                </button>
+              )}
             </div>
-          )}
+          ) : fixture.state === "ended" ? (
+            <div className="rounded-md border border-dashed border-line p-6 text-center bg-surface/20">
+              <p className="text-xs text-muted-foreground">No markets were resolved for this match.</p>
+            </div>
+          ) : null}
           <div>
             <SectionHeading
               eyebrow="Settled · verifiable on Solana"
@@ -635,13 +642,11 @@ function CountdownArc({
   );
 }
 
-function MarketResultCard({ market }: { market: Market }) {
+function MarketHistoryCard({ market }: { market: Market }) {
   if (!market.settled) return null;
   const s = market.settled;
   const totalVotes = market.yes.votes + market.no.votes;
   const yesPct = totalVotes > 0 ? Math.round((market.yes.votes / totalVotes) * 100) : 50;
-  const isMockSig = !s.txSig || s.txSig.includes("-") || s.txSig.startsWith("mock-") || s.txSig.length < 80;
-  const href = isMockSig ? "#" : `https://explorer.solana.com/tx/${s.txSig}?cluster=devnet`;
 
   return (
     <article className="overflow-hidden rounded-md border border-line bg-surface p-4 sm:p-4.5">
@@ -650,14 +655,6 @@ function MarketResultCard({ market }: { market: Market }) {
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-cyan/80" />
           Settled · {market.window}
         </div>
-        <a
-          href={href}
-          target={isMockSig ? undefined : "_blank"}
-          rel={isMockSig ? undefined : "noopener noreferrer"}
-          className="text-[11px] font-mono text-cyan hover:text-cyan/80 transition uppercase tracking-[0.15em]"
-        >
-          {isMockSig ? "local proof ✓" : "solana explorer ↗"}
-        </a>
       </div>
 
       <div className="mt-2.5 flex items-start justify-between gap-4">
