@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import * as anchor from "@coral-xyz/anchor";
+import * as anchor from "@anchor-lang/core";
 import { useApp } from "../lib/app-context";
 import { API_URL, NINETY_PROGRAM_ID } from "../lib/config";
 import {

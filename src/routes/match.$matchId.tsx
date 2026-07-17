@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
-import * as anchor from "@coral-xyz/anchor";
+import * as anchor from "@anchor-lang/core";
 import { Buffer } from "buffer";
 import { useApp } from "../lib/app-context";
 import { FlagImg } from "../lib/flags";

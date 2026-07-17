@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import * as anchor from "@coral-xyz/anchor";
+import * as anchor from "@anchor-lang/core";
 import idlJson from "./ninety-idl.json";
 import { type Position, type SettledMarket } from "./mock-data";
 import { API_URL, NINETY_PROGRAM_ID } from "./config";

@@ -5,18 +5,12 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite';
 
-const externalAnchor = ["@coral-xyz/anchor"]
-
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  ssr: { external: externalAnchor },
   plugins: [
     devtools(),
     tailwindcss(),
-    nitro({
-      preset: process.env.VERCEL ? "vercel" : undefined,
-      rolldownConfig: { external: externalAnchor },
-    }),
+    nitro(),
     tanstackStart(),
     viteReact(),
   ]
