@@ -65,6 +65,9 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "lightningcss"
-    ]
+    ],
+    "patchedDependencies": {
+      "@anchor-lang/core@1.1.2": "patches/@anchor-lang__core@1.1.2.patch"
+    }
   }
 }

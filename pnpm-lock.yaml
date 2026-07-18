@@ -4,13 +4,18 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@anchor-lang/core@1.1.2':
+    hash: 0707c76d11a087cad9b23157997f007d7625d962c92c4ddd6ce2bc90d4bf48c2
+    path: patches/@anchor-lang__core@1.1.2.patch
+
 importers:
 
   .:
     dependencies:
       '@anchor-lang/core':
         specifier: ^1.1.2
-        version: 1.1.2(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
+        version: 1.1.2(patch_hash=0707c76d11a087cad9b23157997f007d7625d962c92c4ddd6ce2bc90d4bf48c2)(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
       '@solana/wallet-adapter-base':
         specifier: ^0.9.27
         version: 0.9.27(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6))
@@ -4016,7 +4021,7 @@ snapshots:
       bn.js: 5.2.4
       buffer-layout: 1.2.2
 
-  '@anchor-lang/core@1.1.2(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)':
+  '@anchor-lang/core@1.1.2(patch_hash=0707c76d11a087cad9b23157997f007d7625d962c92c4ddd6ce2bc90d4bf48c2)(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
       '@anchor-lang/borsh': 1.1.2(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6))
       '@anchor-lang/errors': 1.1.2
