@@ -399,7 +399,11 @@ function P2pChallengesSection({ isConnected, p2pChallenges, matches, walletAddre
               <label className="block text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Select Fixture</label>
               <select value={selectedMatchId} onChange={e => setSelectedMatchId(e.target.value)} className="w-full text-xs bg-background border border-line p-2 rounded text-foreground focus:outline-none">
                 <option value="">-- Choose Match --</option>
-                {matches.map(m => <option key={m.id} value={m.id}>{m.home} vs {m.away} ({m.state === "live" ? "Live" : "Soon"})</option>)}
+                {matches.filter(m => m.state !== "ended").map(m => (
+                  <option key={m.id} value={m.id}>
+                    {m.home} vs {m.away} ({m.state === "live" ? "Live" : m.state === "ht" ? "Half-time" : "Soon"})
+                  </option>
+                ))}
               </select>
             </div>
             <div>

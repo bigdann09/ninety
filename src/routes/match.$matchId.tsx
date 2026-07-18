@@ -126,6 +126,11 @@ function MatchPage() {
     });
   }, [fixture, now]);
 
+  const settledMarketsWithVotes = useMemo(
+    () => MARKETS.filter((m) => m.settled && m.yes.votes + m.no.votes > 0),
+    [MARKETS],
+  );
+
   const livePools = useMemo(
     () =>
       MARKETS.map((m) => {
@@ -222,24 +227,24 @@ function MatchPage() {
               </ul>
             </div>
           )}
-          {MARKETS.some(m => m.settled) ? (
+          {settledMarketsWithVotes.length > 0 ? (
             <div>
               <SectionHeading
                 eyebrow="How the crowd called it"
                 title="Market history"
-                meta={`${MARKETS.filter(m => m.settled).length} settled`}
+                meta={`${settledMarketsWithVotes.length} settled`}
               />
               <ul className="mt-4 flex flex-col gap-3">
-                {MARKETS.filter(m => m.settled).slice(0, historyExpanded ? undefined : 6).map(m => (
+                {settledMarketsWithVotes.slice(0, historyExpanded ? undefined : 6).map(m => (
                   <li key={m.id}><MarketHistoryCard market={m} /></li>
                 ))}
               </ul>
-              {MARKETS.filter(m => m.settled).length > 6 && (
+              {settledMarketsWithVotes.length > 6 && (
                 <button
                   onClick={() => setHistoryExpanded((v) => !v)}
                   className="mt-4 w-full rounded-md border border-line py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground transition hover:border-foreground hover:text-foreground"
                 >
-                  {historyExpanded ? "Show less" : `Show all ${MARKETS.filter(m => m.settled).length} settled markets`}
+                  {historyExpanded ? "Show less" : `Show all ${settledMarketsWithVotes.length} settled markets`}
                 </button>
               )}
             </div>
