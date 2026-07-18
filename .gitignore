@@ -10,7 +10,6 @@ dist-ssr
 .output
 .vercel
 .vinxi
+.claude
 __unconfig*
-todos.json
-
-railway.json
+demo-video/
