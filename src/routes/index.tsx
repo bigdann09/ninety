@@ -6,7 +6,7 @@ import { Buffer } from "buffer";
 import { type Fixture, type TournamentTeam } from "@/lib/app-context";
 import { useApp } from "@/lib/app-context";
 import { FlagImg } from "@/lib/flags";
-import { Sparkles, Users, ArrowRight, Brain, PlusCircle, ChevronDown, Bell } from "lucide-react";
+import { MagicStick, UsersGroupRounded, ArrowRight, Lightbulb, AddCircle, AltArrowDown, Bell, Refresh } from "@solar-icons/react/ssr";
 import { useQuery } from "@tanstack/react-query";
 import { useCountdown, formatCountdown } from "@/lib/hooks/useCountdown";
 import { useMatchNotification } from "@/lib/hooks/useMatchNotifications";
@@ -69,8 +69,8 @@ function Lobby() {
         {(["markets", "recommendations", "p2p"] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`pb-3 text-[13px] font-bold uppercase tracking-[0.14em] transition border-b-2 cursor-pointer flex items-center gap-1.5 ${activeTab === tab ? "border-amber text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-            {tab === "recommendations" && <Sparkles className="h-3.5 w-3.5 text-amber" />}
-            {tab === "p2p" && <Users className="h-3.5 w-3.5 text-amber" />}
+            {tab === "recommendations" && <MagicStick className="h-3.5 w-3.5 text-amber" />}
+            {tab === "p2p" && <UsersGroupRounded className="h-3.5 w-3.5 text-amber" />}
             {tab === "markets" ? "Lobby Markets" : tab === "recommendations" ? `AI Feeds (${recommendedMatches.length})` : `P2P Challenges (${p2pChallenges.length})`}
           </button>
         ))}
@@ -104,11 +104,11 @@ function Lobby() {
 
       {activeTab === "recommendations" && (
         <div className="mt-8">
-          <h2 className="font-display text-[18px] font-bold tracking-tight mb-1 text-foreground flex items-center gap-2"><Sparkles className="h-5 w-5 text-amber" />AI Recommended Feeds</h2>
+          <h2 className="font-display text-[18px] font-bold tracking-tight mb-1 text-foreground flex items-center gap-2"><MagicStick className="h-5 w-5 text-amber" />AI Recommended Feeds</h2>
           <p className="text-[12px] text-muted-foreground mb-6">Live and upcoming World Cup fixtures, sorted by market activity.</p>
           {recommendedMatches.length === 0 ? (
             <div className="rounded-lg border border-dashed border-line p-8 text-center bg-surface/30">
-              <Brain className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
+              <Lightbulb className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
               <p className="text-[13px] text-muted-foreground">Loading fixtures&hellip;</p>
             </div>
           ) : (
@@ -116,7 +116,7 @@ function Lobby() {
               {recommendedMatches.map((f: any) => (
                 <div key={f.id} className="rounded-lg border border-line bg-surface/40 p-4 transition hover:bg-surface/80">
                   <div className="flex justify-between items-start gap-4 mb-3">
-                    <span className="inline-flex items-center gap-1.5 rounded bg-amber/10 px-2 py-0.5 text-[10px] font-medium text-amber uppercase tracking-wider"><Sparkles className="h-3 w-3" />{f.status === "live" || f.status === "halftime" ? "Live" : "Upcoming"}</span>
+                    <span className="inline-flex items-center gap-1.5 rounded bg-amber/10 px-2 py-0.5 text-[10px] font-medium text-amber uppercase tracking-wider"><MagicStick className="h-3 w-3" />{f.status === "live" || f.status === "halftime" ? "Live" : "Upcoming"}</span>
                     <span className="text-[11px] font-mono text-muted-foreground">{normaliseComp(f.competition)}</span>
                   </div>
                   <div className="flex justify-between items-center mb-3">
@@ -302,7 +302,7 @@ function TournamentTeamRow({ team }: { team: TournamentTeam }) {
         </div>
         <span className="num font-mono text-[12px] font-bold text-foreground w-10 text-right">{Math.round(team.prob * 100)}%</span>
         {canStake && (
-          <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
+          <AltArrowDown className={`h-3 w-3 text-muted-foreground transition-transform shrink-0 ${open ? "rotate-180" : ""}`} />
         )}
       </button>
       {open && canStake && (
@@ -356,7 +356,7 @@ function P2pChallengesSection({ isConnected, p2pChallenges, matches, walletAddre
     try {
       await fn();
     } catch (e: any) {
-      alert(e.message || "Action failed");
+      toast.error(e.message || "Action failed");
     } finally {
       setActionLoadingId(null);
     }
@@ -382,7 +382,7 @@ function P2pChallengesSection({ isConnected, p2pChallenges, matches, walletAddre
 
   return (
     <div>
-      <h2 className="font-display text-[18px] font-bold tracking-tight mb-2 text-foreground flex items-center gap-2"><Users className="h-5 w-5 text-amber" />P2P Custom Challenges</h2>
+      <h2 className="font-display text-[18px] font-bold tracking-tight mb-2 text-foreground flex items-center gap-2"><UsersGroupRounded className="h-5 w-5 text-amber" />P2P Custom Challenges</h2>
       <p className="text-[13px] text-muted-foreground mb-6">Challenge a friend's wallet directly with a custom prediction escrowed on-chain.</p>
       {!isConnected ? (
         <div className="rounded-lg border border-line p-8 text-center bg-surface/30"><p className="text-[13px] text-muted-foreground">Connect your wallet to challenge friends or accept incoming wagers.</p></div>
@@ -423,7 +423,15 @@ function P2pChallengesSection({ isConnected, p2pChallenges, matches, walletAddre
               </div>
             </div>
             <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 rounded bg-amber py-2.5 text-xs font-bold text-background hover:bg-amber/90 transition cursor-pointer disabled:opacity-50">
-              <PlusCircle className="h-4 w-4" /> Send Challenge
+              {loading ? (
+                <>
+                  <Refresh className="h-4 w-4 animate-spin" /> Sending...
+                </>
+              ) : (
+                <>
+                  <AddCircle className="h-4 w-4" /> Send Challenge
+                </>
+              )}
             </button>
           </form>
 
@@ -524,7 +532,7 @@ function OtherFixturesSection({ fixtures }: { fixtures: Fixture[] }) {
           <h2 className="font-display text-[14px] font-bold uppercase tracking-[0.16em] text-muted-foreground group-hover:text-foreground transition" style={{ fontFamily: "var(--font-display)" }}>Other Fixtures</h2>
           <span className="num font-mono text-[12px] text-muted-foreground">({fixtures.length.toString().padStart(2, "0")})</span>
         </div>
-        <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+        <AltArrowDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <ul className="divide-y divide-line">

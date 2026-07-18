@@ -8,13 +8,13 @@ import {
   Wallet,
   Database,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
-  RefreshCw,
-  Zap,
-  TrendingUp,
+  CloseCircle,
+  DangerTriangle,
+  Refresh,
+  Bolt,
+  GraphUp,
   Shield,
-} from "lucide-react";
+} from "@solar-icons/react/ssr";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -168,7 +168,7 @@ function AdminPage() {
         </div>
       ) : !isKeeper ? (
         <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-6 text-center">
-          <XCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
+          <CloseCircle className="h-8 w-8 text-red-400 mx-auto mb-2" />
           <p className="text-[13px] text-red-400 font-mono">
             Connected wallet is not the keeper authority.
           </p>
@@ -184,14 +184,14 @@ function AdminPage() {
           <div className="rounded-xl border border-line bg-surface/30 p-5">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber" />
+                <Bolt className="h-4 w-4 text-amber" />
                 <h2 className="font-bold text-[15px]">On-chain Program Config</h2>
               </div>
               <button
                 onClick={fetchConfig}
                 className="text-[11px] text-muted-foreground hover:text-foreground transition flex items-center gap-1 cursor-pointer"
               >
-                <RefreshCw className="h-3 w-3" /> Refresh
+                <Refresh className="h-3 w-3" /> Refresh
               </button>
             </div>
 
@@ -216,7 +216,7 @@ function AdminPage() {
               </div>
             ) : (
               <div className="flex items-center gap-2 text-[12px] text-yellow-400">
-                <AlertTriangle className="h-3.5 w-3.5" />
+                <DangerTriangle className="h-3.5 w-3.5" />
                 Program not initialized — run Initialize below.
               </div>
             )}
@@ -278,7 +278,7 @@ function AdminPage() {
 
               {contractMsg && (
                 <div className={`rounded-lg border px-4 py-3 text-[12px] font-mono break-all ${contractMsg.type === "ok" ? "border-green-500/30 bg-green-500/5 text-green-400" : "border-red-500/30 bg-red-500/5 text-red-400"}`}>
-                  {contractMsg.type === "ok" ? <CheckCircle className="inline h-3.5 w-3.5 mr-1.5" /> : <XCircle className="inline h-3.5 w-3.5 mr-1.5" />}
+                  {contractMsg.type === "ok" ? <CheckCircle className="inline h-3.5 w-3.5 mr-1.5" /> : <CloseCircle className="inline h-3.5 w-3.5 mr-1.5" />}
                   {contractMsg.text}
                 </div>
               )}
@@ -318,7 +318,7 @@ function AdminPage() {
             disabled={dbLoading}
             className="text-[11px] text-muted-foreground hover:text-foreground transition flex items-center gap-1 cursor-pointer"
           >
-            <RefreshCw className={`h-3 w-3 ${dbLoading ? "animate-spin" : ""}`} /> Test
+            <Refresh className={`h-3 w-3 ${dbLoading ? "animate-spin" : ""}`} /> Test
           </button>
         </div>
 
@@ -337,7 +337,7 @@ function AdminPage() {
               <div className="flex flex-wrap gap-2">
                 {dbStatus.tables.length === 0 ? (
                   <div className="text-[12px] text-yellow-400 flex items-center gap-1.5">
-                    <AlertTriangle className="h-3.5 w-3.5" />
+                    <DangerTriangle className="h-3.5 w-3.5" />
                     No tables found — apply <code className="bg-surface px-1 rounded">supabase-schema.sql</code> in the SQL Editor.
                   </div>
                 ) : (
@@ -353,7 +353,7 @@ function AdminPage() {
         ) : (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-[12px] text-red-400">
-              <XCircle className="h-4 w-4" />
+              <CloseCircle className="h-4 w-4" />
               <span className="font-semibold">Connection failed</span>
             </div>
             {dbStatus.error && (
@@ -367,7 +367,7 @@ function AdminPage() {
 
       <div className="mt-6 rounded-xl border border-line bg-surface/30 p-5">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-4 w-4 text-amber" />
+          <GraphUp className="h-4 w-4 text-amber" />
           <h2 className="font-bold text-[15px]">Revenue Breakdown</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

@@ -31,6 +31,9 @@ importers:
       '@solana/web3.js':
         specifier: ^1.98.4
         version: 1.98.4(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
+      '@solar-icons/react':
+        specifier: ^1.1.1
+        version: 1.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.3.2(vite@8.1.0(@types/node@22.20.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -64,9 +67,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      lucide-react:
-        specifier: ^0.545.0
-        version: 0.545.0(react@19.2.7)
       nitro:
         specifier: 3.0.260610-beta
         version: 3.0.260610-beta(chokidar@5.0.0)(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.1.0(@types/node@22.20.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -1220,6 +1220,13 @@ packages:
 
   '@solana/web3.js@1.98.4':
     resolution: {integrity: sha512-vv9lfnvjUsRiq//+j5pBdXig0IQdtzA0BRZ3bXEP4KaIyF1CcaydWqgyzQgfZMNIsWNWmG+AUHwPy4AHOD6gpw==}
+
+  '@solar-icons/react@1.1.1':
+    resolution: {integrity: sha512-7cuzHyfXKk+P4HyoW+EXbauiBm01AZzqcEqTsr/m0f77aDYPU0XayejV9IXscxiyYB+twh+UsSgqwIS/ap/rgA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      react: '>= 16.8'
+      react-dom: '>= 16.8'
 
   '@solflare-wallet/sdk@1.4.2':
     resolution: {integrity: sha512-jrseNWipwl9xXZgrzwZF3hhL0eIVxuEtoZOSLmuPuef7FgHjstuTtNJAeT4icA7pzdDV4hZvu54pI2r2f7SmrQ==}
@@ -2930,11 +2937,6 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
-
-  lucide-react@0.545.0:
-    resolution: {integrity: sha512-7r1/yUuflQDSt4f1bpn5ZAocyIxcTyVyBBChSVtBKn5M+392cPmI5YJMWOJKk/HUWGm5wg83chlAZtCcGbEZtw==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
@@ -5230,6 +5232,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  '@solar-icons/react@1.1.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+
   '@solflare-wallet/sdk@1.4.2(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6))':
     dependencies:
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
@@ -6951,10 +6958,6 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
-
-  lucide-react@0.545.0(react@19.2.7):
-    dependencies:
-      react: 19.2.7
 
   lz-string@1.5.0: {}
 

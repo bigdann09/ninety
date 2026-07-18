@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useApp } from "../lib/app-context";
-import { Ticket, ArrowUpRight } from "lucide-react";
+import { Ticket, ArrowRightUp } from "@solar-icons/react/ssr";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/stakes")({
@@ -241,7 +241,7 @@ function StakesPage() {
                                 rel="noreferrer"
                                 className="text-amber hover:underline flex items-center gap-1 font-bold"
                               >
-                                {txShort} <ArrowUpRight className="h-3 w-3" />
+                                {txShort} <ArrowRightUp className="h-3 w-3" />
                               </a>
                             ) : (
                               <span className="text-amber font-mono text-[10px]">Local proof ✓</span>
@@ -258,7 +258,7 @@ function StakesPage() {
                                 rel="noreferrer"
                                 className="text-cyan hover:underline flex items-center gap-1 font-bold"
                               >
-                                {nftShort} <ArrowUpRight className="h-3 w-3" />
+                                {nftShort} <ArrowRightUp className="h-3 w-3" />
                               </a>
                             ) : (
                               <span className="text-muted-foreground/60 italic">Minting stub...</span>

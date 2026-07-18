@@ -7,7 +7,7 @@ import { useApp } from "../lib/app-context";
 import { FlagImg } from "../lib/flags";
 import { API_URL, NINETY_PROGRAM_ID } from "../lib/config";
 import { toast } from "sonner";
-import { Sparkles, Activity, MessageSquare, Send, Share2 } from "lucide-react";
+import { MagicStick, Pulse, ChatSquare, SendSquare, Share } from "@solar-icons/react/ssr";
 import { io, Socket } from "socket.io-client";
 
 function ordinal(n: number): string {
@@ -209,6 +209,7 @@ function MatchPage() {
           {/* Mobile: probabilities & chat */}
           <div className="lg:hidden space-y-4">
             <CopilotPanel copilot={copilot} fixture={fixture} compact />
+            <MatchPulsePanel matchId={fixture.id} />
             <HistoryPanel matchId={fixture.id} />
             <MatchChat matchId={fixture.id} />
           </div>
@@ -281,6 +282,7 @@ function MatchPage() {
         {/* Right Column: AI Match Copilot & Chat Sidebar (desktop) */}
         <div className="hidden lg:flex lg:flex-col lg:gap-4 lg:sticky lg:top-6 lg:self-start">
           <CopilotPanel copilot={copilot} fixture={fixture} />
+          <MatchPulsePanel matchId={fixture.id} />
           <HistoryPanel matchId={fixture.id} />
           <MatchChat matchId={fixture.id} />
         </div>
@@ -459,7 +461,7 @@ function LiveMarketCard({
 
           {copilotProb !== null && (
             <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[#5BE0C9] font-mono bg-[#5BE0C9]/10 px-2 py-0.5 rounded w-fit select-none">
-              <Sparkles className="h-3 w-3" />
+              <MagicStick className="h-3 w-3" />
               <span>AI Fair Odds: {(1 / copilotProb).toFixed(2)} ({Math.round(copilotProb * 100)}% prob)</span>
             </div>
           )}
@@ -776,7 +778,7 @@ function SettledMarketCard({ receipt, matchId }: { receipt: any; matchId: string
             className="text-[11px] font-mono text-muted-foreground hover:text-foreground transition flex items-center gap-1 uppercase tracking-[0.15em] cursor-pointer"
             title="Share Wager Receipt"
           >
-            <Share2 className="h-3 w-3" /> Share
+            <Share className="h-3 w-3" /> Share
           </button>
           <a
             href={href}
@@ -898,7 +900,7 @@ function CopilotPanel({ copilot, fixture, compact }: { copilot: any; fixture?: a
   if (!copilot) {
     return (
       <div className="rounded-xl border border-line bg-surface/30 p-4 text-center">
-        <Activity className="animate-pulse h-5 w-5 text-amber mx-auto mb-2" />
+        <Pulse className="animate-pulse h-5 w-5 text-amber mx-auto mb-2" />
         <p className="text-[11px] text-muted-foreground">Connecting copilot stream...</p>
       </div>
     );
@@ -919,7 +921,7 @@ function CopilotPanel({ copilot, fixture, compact }: { copilot: any; fixture?: a
   return (
     <div className="rounded-xl border border-line bg-surface/50 p-5 space-y-4">
       <div className="flex items-center gap-2 border-b border-line pb-3">
-        <Sparkles className="h-4 w-4 text-amber" />
+        <MagicStick className="h-4 w-4 text-amber" />
         <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">AI Match Copilot</span>
         {isSoon && <span className="text-[9px] font-mono text-amber ml-auto uppercase font-bold">Warming Up</span>}
         {isEnded && <span className="text-[9px] font-mono text-muted-foreground ml-auto uppercase font-bold">Concluded</span>}
@@ -994,6 +996,176 @@ function ProbRow({ label, prob }: { label: string; prob: number }) {
   );
 }
 
+function MatchPulsePanel({ matchId }: { matchId: string }) {
+  const [pulse, setPulse] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const fetchPulse = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/matches/${matchId}/pulse`);
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setPulse(data);
+          if (data.status === "full_time" && interval) {
+            clearInterval(interval);
+            interval = null;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch match pulse:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchPulse();
+    interval = setInterval(fetchPulse, 30000);
+
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+    };
+  }, [matchId]);
+
+  if (loading) {
+    return (
+      <div className="rounded-xl border border-line bg-surface/30 p-5 text-center w-full">
+        <Pulse className="animate-pulse h-5 w-5 text-amber mx-auto mb-2" />
+        <p className="text-[11px] text-muted-foreground font-mono">Reading match pulse...</p>
+      </div>
+    );
+  }
+
+  if (!pulse) return null;
+
+  const isFinished = pulse.status === "full_time";
+
+  return (
+    <div className="rounded-xl border border-line bg-surface/50 p-5 space-y-5 w-full">
+      <div className="flex items-center gap-2 border-b border-line pb-3">
+        <Pulse className="h-4 w-4 text-amber" />
+        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Match Pulse</span>
+        <span className="ml-auto text-[9px] font-mono uppercase font-bold text-amber">{isFinished ? "AI · Final" : "AI · Live"}</span>
+      </div>
+
+      {pulse.summary && (
+        <p className="text-[11px] text-muted-foreground/90 leading-relaxed border-l border-line pl-3">{pulse.summary}</p>
+      )}
+
+      {pulse.momentum?.length > 0 && (
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-[9px] font-mono uppercase tracking-wider text-muted-foreground">
+            <span>{pulse.teams.home}</span>
+            <span>Momentum</span>
+            <span>{pulse.teams.away}</span>
+          </div>
+          <div className="flex items-center gap-[2px] h-8">
+            {pulse.momentum.map((p: any, i: number) => {
+              const heightPct = Math.max(15, Math.abs(p.value) * 100);
+              const isHome = p.value >= 0;
+              return (
+                <div key={i} className="flex-1 h-full flex items-center justify-center" title={`${p.minute}'`}>
+                  <div
+                    className={`w-full rounded-sm transition-all ${Math.abs(p.value) > 0.4 ? (isHome ? "bg-amber" : "bg-cyan") : "bg-line"}`}
+                    style={{ height: `${heightPct}%` }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2.5">
+        <span className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground block">Match Stats</span>
+        <PulseStatRow label="Goals" home={pulse.stats.home.goals} away={pulse.stats.away.goals} />
+        <PulseStatRow label="Shots" home={pulse.stats.home.shots} away={pulse.stats.away.shots} />
+        <PulseStatRow label="Corners" home={pulse.stats.home.corners} away={pulse.stats.away.corners} />
+        <PulseStatRow
+          label="Cards"
+          home={pulse.stats.home.yellowCards + pulse.stats.home.redCards}
+          away={pulse.stats.away.yellowCards + pulse.stats.away.redCards}
+        />
+      </div>
+
+      {pulse.keyMoments?.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground block">How The Match Changed</span>
+          <ol className="space-y-1.5">
+            {pulse.keyMoments.map((m: string, i: number) => (
+              <li key={i} className="flex gap-2 text-[11px] text-foreground/90 leading-relaxed">
+                <span className="text-amber font-mono font-bold shrink-0">{i + 1}.</span>
+                <span>{m}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <span className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground block">Win Probability</span>
+        <PulseWinProbBar label={pulse.teams.home} pct={pulse.winProbability.home} color="bg-amber" />
+        <PulseWinProbBar label="Draw" pct={pulse.winProbability.draw} color="bg-muted-foreground" />
+        <PulseWinProbBar label={pulse.teams.away} pct={pulse.winProbability.away} color="bg-cyan" />
+      </div>
+
+      {pulse.timeline?.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-[9px] font-mono uppercase tracking-wider text-muted-foreground block">Timeline</span>
+          <ul className="space-y-1.5 font-mono text-[11px]">
+            {pulse.timeline.map((t: any, i: number) => (
+              <li key={i} className="flex items-center gap-2 text-foreground/90">
+                <span className="text-muted-foreground w-8 shrink-0">{t.minute}'</span>
+                <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${t.team === "home" ? "bg-amber" : t.team === "away" ? "bg-cyan" : "bg-muted-foreground"}`} />
+                <span>{t.label}</span>
+                {t.team && (
+                  <span className="text-muted-foreground text-[10px]">({t.team === "home" ? pulse.teams.home : pulse.teams.away})</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PulseStatRow({ label, home, away }: { label: string; home: number; away: number }) {
+  const total = home + away || 1;
+  const homePct = (home / total) * 100;
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-[10px] font-mono">
+        <span className="text-foreground font-bold w-8 text-left">{home}</span>
+        <span className="text-muted-foreground uppercase tracking-wider">{label}</span>
+        <span className="text-foreground font-bold w-8 text-right">{away}</span>
+      </div>
+      <div className="h-1 w-full bg-background rounded-full overflow-hidden flex">
+        <div className="h-full bg-amber transition-all duration-500" style={{ width: `${homePct}%` }} />
+        <div className="h-full bg-cyan transition-all duration-500" style={{ width: `${100 - homePct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function PulseWinProbBar({ label, pct, color }: { label: string; pct: number; color: string }) {
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-[10px] font-mono">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="text-foreground font-bold">{pct}%</span>
+      </div>
+      <div className="h-1.5 w-full bg-background rounded-full overflow-hidden">
+        <div className={`h-full ${color} rounded-full transition-all duration-500`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
 function HistoryPanel({ matchId }: { matchId: string }) {
   const [history, setHistory] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -1018,7 +1190,7 @@ function HistoryPanel({ matchId }: { matchId: string }) {
   if (loading) {
     return (
       <div className="rounded-xl border border-line bg-surface/30 p-5 text-center w-full">
-        <Activity className="animate-pulse h-5 w-5 text-cyan mx-auto mb-2" />
+        <Pulse className="animate-pulse h-5 w-5 text-cyan mx-auto mb-2" />
         <p className="text-[11px] text-muted-foreground font-mono">Loading historical stats...</p>
       </div>
     );
@@ -1029,7 +1201,7 @@ function HistoryPanel({ matchId }: { matchId: string }) {
   return (
     <div className="rounded-xl border border-line bg-surface/50 p-5 space-y-4 w-full">
       <div className="flex items-center gap-2 border-b border-line pb-3">
-        <Activity className="h-4 w-4 text-cyan" />
+        <Pulse className="h-4 w-4 text-cyan" />
         <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Match Stats & History</span>
       </div>
 
@@ -1160,7 +1332,7 @@ function MatchChat({ matchId }: { matchId: string }) {
         className="w-full flex items-center gap-2 px-4 py-3 border-b border-line text-left cursor-pointer hover:bg-surface/80 transition"
       >
         <span className="h-1.5 w-1.5 rounded-full bg-amber pip-live" />
-        <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+        <ChatSquare className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Match Room Chat</span>
         <span className="text-[10px] font-mono text-muted-foreground ml-1">({count} live)</span>
         <span className="ml-auto text-[10px] text-muted-foreground">{open ? "▲" : "▼"}</span>
@@ -1194,7 +1366,7 @@ function MatchChat({ matchId }: { matchId: string }) {
                   onClick={send}
                   className="rounded bg-amber px-3 py-1.5 cursor-pointer hover:bg-amber/90 transition flex items-center justify-center"
                 >
-                  <Send className="h-3.5 w-3.5 text-background" />
+                  <SendSquare className="h-3.5 w-3.5 text-background" />
                 </button>
               </>
             ) : (

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useApp } from "@/lib/app-context";
 import { useState, useEffect } from "react";
-import { Copy, Check, ShieldCheck, Globe, Cpu } from "lucide-react";
+import { Copy, CheckSquare, ShieldCheck, Global, Cpu } from "@solar-icons/react/ssr";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -120,7 +120,7 @@ function SettingsPage() {
                 onClick={copyWallet}
                 className="flex items-center gap-1.5 rounded-sm border border-line bg-background px-3 py-1.5 num font-mono text-[12px] hover:border-foreground transition cursor-pointer"
               >
-                {copied ? <Check className="h-3.5 w-3.5 text-cyan" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
+                {copied ? <CheckSquare className="h-3.5 w-3.5 text-cyan" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
                 {walletAddress}
               </button>
               <button
@@ -153,7 +153,7 @@ function SettingsPage() {
             {/* Network Cluster Toggle */}
             <div className="mt-4 flex items-center justify-between border-b border-line pb-4">
               <span className="text-[13px] text-muted-foreground flex items-center gap-2">
-                <Globe className="h-4 w-4 text-amber" /> Solana Cluster
+                <Global className="h-4 w-4 text-amber" /> Solana Cluster
               </span>
               <div className="flex gap-1">
                 {["devnet", "mainnet-beta"].map((net) => (

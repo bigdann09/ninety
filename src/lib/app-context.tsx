@@ -4,6 +4,20 @@ import * as anchor from "@anchor-lang/core";
 import idlJson from "./ninety-idl.json";
 import { type Position, type SettledMarket } from "./mock-data";
 import { API_URL, NINETY_PROGRAM_ID } from "./config";
+import { toast } from "sonner";
+
+// Plain fetch() has no default timeout — a single hung request (this environment sees
+// occasional transient network blips) would otherwise block refreshData()'s Promise.all
+// forever, and every mutation (stake, P2P create/accept/claim...) that awaits it with it.
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 12000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export interface Fixture {
   id: string;
@@ -190,7 +204,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Fetch matches from Express API
   const fetchMatches = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/matches`);
+      const res = await fetchWithTimeout(`${API_URL}/api/matches`);
       if (res.ok) {
         const data = await res.json();
 
@@ -324,7 +338,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     try {
-      const res = await fetch(`${API_URL}/api/stakes/wallet/${walletAddress}`);
+      const res = await fetchWithTimeout(`${API_URL}/api/stakes/wallet/${walletAddress}`);
       if (res.ok) {
         const data = await res.json();
 
@@ -422,7 +436,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const fetchLoyalty = async () => {
     if (!walletAddress) return;
     try {
-      const res = await fetch(`${API_URL}/api/users/${walletAddress}/loyalty`);
+      const res = await fetchWithTimeout(`${API_URL}/api/users/${walletAddress}/loyalty`);
       if (res.ok) {
         const data = await res.json();
         setLoyaltyInfo(data);
@@ -435,7 +449,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const fetchRecommendations = async () => {
     if (!walletAddress) return;
     try {
-      const res = await fetch(`${API_URL}/api/users/${walletAddress}/recommendations`);
+      const res = await fetchWithTimeout(`${API_URL}/api/users/${walletAddress}/recommendations`);
       if (res.ok) {
         const data = await res.json();
         setRecommendations(data);
@@ -448,7 +462,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const fetchP2pChallenges = async () => {
     if (!walletAddress) return;
     try {
-      const res = await fetch(`${API_URL}/api/p2p/challenges/wallet/${walletAddress}`);
+      const res = await fetchWithTimeout(`${API_URL}/api/p2p/challenges/wallet/${walletAddress}`);
       if (res.ok) {
         const data = await res.json();
         setP2pChallenges(data);
@@ -460,7 +474,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchTournamentTeams = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/tournament`);
+      const res = await fetchWithTimeout(`${API_URL}/api/tournament`);
       if (res.ok) {
         const data = await res.json();
         setTournamentTeams(data);
@@ -479,7 +493,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchCopilot = async (matchId: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/matches/${matchId}/copilot`);
+      const res = await fetchWithTimeout(`${API_URL}/api/matches/${matchId}/copilot`);
       if (res.ok) {
         return await res.json();
       }
@@ -512,7 +526,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         [Buffer.from("config")],
         PROGRAM_ID
       );
-      const config: any = await (program.account as any).programConfig.fetch(configPda);
+      const config: any = await (program.account as any).programConfig.fetchWithTimeout(configPda);
 
       const txSig = await program.methods
         .cashout()
@@ -527,7 +541,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         })
         .rpc();
 
-      const res = await fetch(`${API_URL}/api/stakes/${stakeId}/cashout`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/stakes/${stakeId}/cashout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ wallet: walletAddress, tx_sig: txSig }),
@@ -545,7 +559,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const createP2pChallenge = async (data: { challenger_wallet: string; match_id: string; question: string; amount_sol: number; creator_side: string }) => {
     try {
-      const res = await fetch(`${API_URL}/api/p2p/challenges`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/p2p/challenges`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -573,7 +587,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // move yet; both sides still need to call p2pPlaceStake to actually fund their position.
   const acceptP2pChallenge = async (challengeId: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/p2p/challenges/${challengeId}/accept`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/p2p/challenges/${challengeId}/accept`, {
         method: "POST"
       });
       if (res.ok) {
@@ -623,7 +637,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
       .rpc();
 
-    const res = await fetch(`${API_URL}/api/p2p/challenges/${challengeId}/confirm-stake`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/p2p/challenges/${challengeId}/confirm-stake`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ wallet: walletAddress, tx_sig: txSig }),
@@ -637,7 +651,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const resolveP2pChallenge = async (challengeId: string, outcome: boolean) => {
     try {
-      const res = await fetch(`${API_URL}/api/p2p/challenges/${challengeId}/resolve`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/p2p/challenges/${challengeId}/resolve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ outcome })
@@ -680,7 +694,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       [Buffer.from("config")],
       PROGRAM_ID
     );
-    const config: any = await (program.account as any).programConfig.fetch(configPda);
+    const config: any = await (program.account as any).programConfig.fetchWithTimeout(configPda);
 
     const txSig = await program.methods
       .claimPayout()
@@ -695,7 +709,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
       .rpc();
 
-    const res = await fetch(`${API_URL}/api/p2p/challenges/${challengeId}/confirm-claim`, {
+    const res = await fetchWithTimeout(`${API_URL}/api/p2p/challenges/${challengeId}/confirm-claim`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ wallet: walletAddress, tx_sig: txSig }),
@@ -709,7 +723,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addPosition = async (newPos: Omit<Position, "id"> & { onChainPubkey?: string; txSig?: string }) => {
     try {
-      const res = await fetch(`${API_URL}/api/stakes`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/stakes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -753,7 +767,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         [Buffer.from("config")],
         PROGRAM_ID
       );
-      const config: any = await (program.account as any).programConfig.fetch(configPda);
+      const config: any = await (program.account as any).programConfig.fetchWithTimeout(configPda);
 
       const tx = await program.methods
         .claimPayout()
@@ -768,7 +782,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         })
         .rpc();
 
-      const res = await fetch(`${API_URL}/api/stakes/${stakeId}/claim`, {
+      const res = await fetchWithTimeout(`${API_URL}/api/stakes/${stakeId}/claim`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ wallet: walletAddress, tx_sig: tx }),
@@ -781,7 +795,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     } catch (e: any) {
       console.error("Failed to claim payout:", e);
-      alert(`Claim failed: ${e.message}`);
+      toast.error(`Claim failed: ${e.message}`);
     }
   };
 

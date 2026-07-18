@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApp } from "@/lib/app-context";
 import { FlagImg } from "@/lib/flags";
-import { Flame, Trophy, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Flame, CupFirst, CheckCircle, CloseCircle, ClockCircle } from "@solar-icons/react/ssr";
 import { toast } from "sonner";
 import { API_URL } from "@/lib/config";
 
@@ -129,18 +129,18 @@ function StreakPage() {
 
           {fixturesQuery.isLoading ? (
             <div className="mt-6 text-center py-10 border border-dashed border-line rounded-md">
-              <Clock className="h-6 w-6 text-muted-foreground mx-auto mb-2 opacity-60 animate-pulse" />
+              <ClockCircle className="h-6 w-6 text-muted-foreground mx-auto mb-2 opacity-60 animate-pulse" />
               <p className="text-muted-foreground text-[13px]">Loading fixtures...</p>
             </div>
           ) : isConnected && me?.pickedToday ? (
             <div className="mt-6 rounded-md border border-amber/30 bg-amber/5 p-6 text-center">
-              <CheckCircle2 className="h-6 w-6 text-amber mx-auto mb-2" />
+              <CheckCircle className="h-6 w-6 text-amber mx-auto mb-2" />
               <p className="text-[13px] font-semibold text-foreground">Today's pick is locked in.</p>
               <p className="text-[11px] text-muted-foreground mt-1">It settles at full time — come back tomorrow for the next one.</p>
             </div>
           ) : fixtures.length === 0 ? (
             <div className="mt-6 text-center py-10 border border-dashed border-line rounded-md">
-              <Clock className="h-6 w-6 text-muted-foreground mx-auto mb-2 opacity-60" />
+              <ClockCircle className="h-6 w-6 text-muted-foreground mx-auto mb-2 opacity-60" />
               <p className="text-muted-foreground text-[13px]">No fixtures kicking off in the next 72 hours.</p>
             </div>
           ) : (
@@ -206,12 +206,12 @@ function StreakPage() {
                     </span>
                     {p.settled ? (
                       p.correct ? (
-                        <span className="flex items-center gap-1 text-cyan font-mono text-[11px] shrink-0"><CheckCircle2 className="h-3.5 w-3.5" /> +10 XP</span>
+                        <span className="flex items-center gap-1 text-cyan font-mono text-[11px] shrink-0"><CheckCircle className="h-3.5 w-3.5" /> +10 XP</span>
                       ) : (
-                        <span className="flex items-center gap-1 text-red-400 font-mono text-[11px] shrink-0"><XCircle className="h-3.5 w-3.5" /> streak reset</span>
+                        <span className="flex items-center gap-1 text-red-400 font-mono text-[11px] shrink-0"><CloseCircle className="h-3.5 w-3.5" /> streak reset</span>
                       )
                     ) : (
-                      <span className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] shrink-0"><Clock className="h-3.5 w-3.5" /> pending</span>
+                      <span className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] shrink-0"><ClockCircle className="h-3.5 w-3.5" /> pending</span>
                     )}
                   </li>
                 ))}
@@ -223,7 +223,7 @@ function StreakPage() {
         {/* Leaderboard */}
         <section>
           <div className="flex items-center gap-2 border-b border-line pb-2">
-            <Trophy className="h-4 w-4 text-amber" />
+            <CupFirst className="h-4 w-4 text-amber" />
             <h2 className="font-display text-[14px] font-bold uppercase tracking-[0.16em]" style={{ fontFamily: "var(--font-display)" }}>
               Leaderboard
             </h2>

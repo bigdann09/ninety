@@ -121,6 +121,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 import { AppProvider, useApp } from "../lib/app-context";
 import { Toaster } from "sonner";
 import { NotificationPoller } from "../components/NotificationPoller";
+import { SolarProvider } from "@solar-icons/react";
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
@@ -150,15 +151,17 @@ function RootComponent() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ConnectionProvider endpoint={endpoint}>
-        <WalletProvider wallets={walletsList} autoConnect>
-          <AppProvider>
-            <AppLayout />
-          </AppProvider>
-        </WalletProvider>
-      </ConnectionProvider>
-    </QueryClientProvider>
+    <SolarProvider value={{ weight: "Linear" }}>
+      <QueryClientProvider client={queryClient}>
+        <ConnectionProvider endpoint={endpoint}>
+          <WalletProvider wallets={walletsList} autoConnect>
+            <AppProvider>
+              <AppLayout />
+            </AppProvider>
+          </WalletProvider>
+        </ConnectionProvider>
+      </QueryClientProvider>
+    </SolarProvider>
   );
 }
 
