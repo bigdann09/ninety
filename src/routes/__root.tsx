@@ -139,6 +139,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 const endpoint = "https://api.devnet.solana.com";
 
+// @solana/web3.js's Connection has no default timeout on its RPC calls — a stalled
+// connection (not a clean network error, just no response) leaves fetch pending
+// indefinitely. That hang happens inside getLatestBlockhash(), which runs *before*
+// wallet.signTransaction() is ever called, so the symptom is exactly "stake button says
+// Staking... forever, Phantom's approve popup never even appears" — the try/catch around
+// the stake call can't help because a promise that never settles is never caught. This
+// wraps every RPC call in a timeout so a stall becomes a rejection instead of a hang.
+const connectionConfig = {
+  commitment: "confirmed" as const,
+  fetch: (url: RequestInfo | URL, init?: RequestInit) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    return fetch(url, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
+  },
+};
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const [walletsList, setWalletsList] = useState<any[]>([]);
@@ -153,7 +169,7 @@ function RootComponent() {
   return (
     <SolarProvider value={{ weight: "Linear" }}>
       <QueryClientProvider client={queryClient}>
-        <ConnectionProvider endpoint={endpoint}>
+        <ConnectionProvider endpoint={endpoint} config={connectionConfig}>
           <WalletProvider wallets={walletsList} autoConnect>
             <AppProvider>
               <AppLayout />

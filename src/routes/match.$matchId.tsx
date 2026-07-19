@@ -431,6 +431,8 @@ function LiveMarketCard({
       const errMsg = e.message || String(e);
       if (errMsg.includes("custom program error: 0x1") || errMsg.includes("Instruction 2: custom program error: 0x1")) {
         toast.error("Staking failed: Insufficient SOL balance. Please request a Devnet airdrop or top up your wallet.");
+      } else if (e.name === "AbortError" || errMsg.toLowerCase().includes("abort")) {
+        toast.error("Staking failed: the Solana devnet connection timed out. Please try again.");
       } else {
         toast.error(`Staking failed: ${errMsg}`);
       }
